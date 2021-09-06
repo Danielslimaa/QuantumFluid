@@ -34,6 +34,7 @@ double *&d_V_ph_k, double *&h_j0table, double *&d_j0table, double *&d_part1, dou
 
   cudaMemcpy(d_potential, h_potential, N * sizeof(double), cudaMemcpyHostToDevice); //Allocating the potential in the device
   cudaMemcpy(d_j0table, h_j0table, N * N * sizeof(double), cudaMemcpyHostToDevice); //Allocating the j0table in the device
+  cudaMemcpy(d_g, h_g, N * sizeof(double), cudaMemcpyHostToDevice); //Allocating the g(r) function
   
   
   
@@ -61,11 +62,11 @@ __host__ void exit_results(double *h_g, double *h_S, double *energy_pp, double *
   time_t end; 
   char buffer [50000]; char g_buffer [50000]; char S_buffer [50000]; char epp_buffer [50000]; char file_buffer [50000];
 	
-  sprintf(g_buffer, "U-500-rho-2/g-U-%.1f-rho-%1.3f.dat", U, rho);//"2g-functions-5U20-0.4rho2.0/g-U-%.1f-rho-%1.3f.dat", U, rho);
-  sprintf(S_buffer, "U-500-rho-2/S-U-%.1f-rho-%1.3f.dat", U, rho);//"2S-functions-5U20-0.4rho2.0/S-U-%.1f-rho-%1.3f.dat", U, rho);
-  sprintf(epp_buffer, "U-500-rho-2//epp-U-%.0f-rho-%1.3f.dat", U, rho);
-  sprintf(buffer, "U = %3.1f, rho = %1.3f. e = %.8f +- %.3e. dt = %1.10f.", U, rho, energy_pp[k[0]-1], diff_energy[k[0]-1], dt);
-  sprintf(file_buffer, "U-500-rho-2/energia-U-500-rho-2.000.dat");
+  sprintf(g_buffer, "g-functions-5U30-0.4rho2.0/g-U-%.1f-rho-%1.3f.dat", U, rho);
+  sprintf(S_buffer, "S-functions-5U30-0.4rho2.0/S-U-%.1f-rho-%1.3f.dat", U, rho);
+  sprintf(epp_buffer, "epp-functions-5U30-0.4rho2.0/epp-U-%.0f-rho-%1.3f.dat", U, rho);
+  sprintf(buffer, "U = %3.2f, rho = %1.3f. e = %.8f +- %.3e. dt = %1.10f.", U, rho, energy_pp[k[0]], diff_energy[k[0]], dt);
+  sprintf(file_buffer, "tabelas_de_energia/CONT-energia-5U30-0.4rho2.0.dat");
   
   if(aux_total < 2){
     std::ofstream myfile;
@@ -74,7 +75,7 @@ __host__ void exit_results(double *h_g, double *h_S, double *energy_pp, double *
   }
                
   std::cout << "\r(" << aux_total<<"/" << total << ") ---- " << buffer << " Computational time-lapse: " <<\
-  time(&end)-start << " s. Number of iteractions = " << k[0] << ". Time of evolution = " << (double)k[0]*dt << " s" <<  std::endl;
+  time(&end)-start << " s. Number of iterations = " << k[0] << ". Time of evolution = " << (double)k[0]*dt << " s" <<  std::endl;
             
   printer_vector(h_g, N, g_buffer);
   printer_vector(h_S, N, S_buffer);
@@ -84,6 +85,6 @@ __host__ void exit_results(double *h_g, double *h_S, double *energy_pp, double *
   myfile.open(file_buffer, std::ios::app);
   myfile << U << "	" << rho << "	"  << energy_pp[k[0]] << "\n"; 
   myfile.close();
-
+  k[0] = 1;
 
 }
